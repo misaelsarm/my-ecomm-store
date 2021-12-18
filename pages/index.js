@@ -3,10 +3,51 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import products from '../products.json'
 import { initiateCheckout } from '../lib/payments';
+import { useState } from 'react';
+
+const defaultCart = {
+  products: {}
+}
 
 export default function Home() {
+  const [cart, setCart] = useState(defaultCart)
 
-  console.log(process.env.NEXT_PUBLIC_STRIPE_API_KEY);
+
+  const cartItems = Object.keys(cart.products).map(key => {
+    const product = products.find(({ id }) => `${id}` === `${key}`)
+    return {
+      ...cart.products[key],
+      pricePerItem: product.price
+    }
+  })
+
+  const subtotal = cartItems.reduce((accumulator, { pricePerItem, quantity }) => {
+    return accumulator + (pricePerItem * quantity)
+  }, 0)
+
+
+
+  function addToCart({ id } = {}) {
+    setCart(prev => {
+      let cart = { ...prev };
+      console.log(cart.products[id]?.quantity + 1);
+      if (cart.products[id]) {
+        cart.products[id].quantity = cart.products[id].quantity +1;
+        console.log('exists');
+        console.log(cart.products);
+      } else {
+        console.log('not exists');
+
+        cart.products[id] = {
+          id,
+          quantity: 1
+        }
+        console.log(cart.products);
+      }
+      return cart;
+    })
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -23,29 +64,34 @@ export default function Home() {
         <p className={styles.description}>
           The best space jellyfish swag in the Universe
         </p>
+        <p className={styles.description}>
+          <strong>Items:</strong> 2
+          <br /><strong>Total Cost:</strong> $200.00
+          <br />
+          <button className={styles.button}>Checkout</button>
+        </p>
 
         <ul className={styles.grid}>
           {
-            products.map(product => (
-              <li key={product.id} className={styles.card}>
-                <a href="#" >
-                  <img src={product.image} alt="" />
-                  <h2>{product.title}</h2>
-                  <p>${product.price}</p>
-                  <p>{product.description}</p>
-                </a>
-                <button className={styles.button} onClick={()=>{
-                  initiateCheckout({
-                    lineItems:[
-                      {
-                        price: product.id,
-                        quantity: 1
-                      }
-                    ]
-                  })
-                }}>Buy now</button>
-              </li>
-            ))
+            products.map(({ id, title, image, description, price }) => {
+              return (
+                <li key={id} className={styles.card}>
+                  <a href="#" >
+                    <img src={image} alt="" />
+                    <h2>{title}</h2>
+                    <p>${price}</p>
+                    <p>{description}</p>
+                  </a>
+                  <button className={styles.button} onClick={() => {
+                    addToCart({
+                      id
+                    })
+                  }}>Buy now</button>
+                </li>
+              )
+            }
+
+            )
           }
 
         </ul>
