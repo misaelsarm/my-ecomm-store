@@ -20,7 +20,7 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          The best space jellyfish swag on the web
+          The best space jellyfish swag in the Universe
         </p>
 
         <ul className={styles.grid}>
