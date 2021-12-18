@@ -122,3 +122,16 @@
     flex-basis: calc(33.33% - 2rem);
   }
 }
+
+.button {
+  color: white;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 700;
+  background-color: blueviolet;
+  padding: 0.8em 1.4em;
+  border-radius: 0.2em;
+  border: 0;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
