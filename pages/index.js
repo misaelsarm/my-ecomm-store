@@ -12,7 +12,6 @@ const defaultCart = {
 export default function Home() {
   const [cart, setCart] = useState(defaultCart)
 
-
   const cartItems = Object.keys(cart.products).map(key => {
     const product = products.find(({ id }) => `${id}` === `${key}`)
     return {
@@ -21,30 +20,36 @@ export default function Home() {
     }
   })
 
+  console.log(cartItems);
+
   const subtotal = cartItems.reduce((accumulator, { pricePerItem, quantity }) => {
     return accumulator + (pricePerItem * quantity)
   }, 0)
 
+  const quantity = cartItems.reduce((accumulator, { pricePerItem, quantity }) => {
+    return accumulator + quantity
+  }, 0)
 
 
   function addToCart({ id } = {}) {
-    setCart(prev => {
-      let cart = { ...prev };
-      console.log(cart.products[id]?.quantity + 1);
-      if (cart.products[id]) {
-        cart.products[id].quantity = cart.products[id].quantity +1;
-        console.log('exists');
-        console.log(cart.products);
-      } else {
-        console.log('not exists');
-
-        cart.products[id] = {
-          id,
-          quantity: 1
-        }
-        console.log(cart.products);
+    let cartState = { ...cart };
+    if (cartState.products[id]) {
+      cartState.products[id].quantity = cartState.products[id].quantity + 1;
+    } else {
+      cartState.products[id] = {
+        id,
+        quantity: 1
       }
-      return cart;
+    }
+    setCart(cartState)
+  }
+
+  const checkout = () => {
+    initiateCheckout({
+      lineItems: cartItems.map(item => ({
+        price: item.id,
+        quantity: item.quantity
+      }))
     })
   }
 
@@ -65,10 +70,12 @@ export default function Home() {
           The best space jellyfish swag in the Universe
         </p>
         <p className={styles.description}>
-          <strong>Items:</strong> 2
-          <br /><strong>Total Cost:</strong> $200.00
+          <strong>Items:</strong> {quantity}
+          <br /><strong>Total Cost:</strong> ${subtotal}
           <br />
-          <button className={styles.button}>Checkout</button>
+          <button
+            onClick={checkout}
+            className={styles.button}>Checkout</button>
         </p>
 
         <ul className={styles.grid}>
@@ -86,7 +93,7 @@ export default function Home() {
                     addToCart({
                       id
                     })
-                  }}>Buy now</button>
+                  }}>Add to cart</button>
                 </li>
               )
             }
